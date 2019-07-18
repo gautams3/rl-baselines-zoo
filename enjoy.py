@@ -118,6 +118,10 @@ def main():
         if isinstance(env.action_space, gym.spaces.Box):
             action = np.clip(action, env.action_space.low, env.action_space.high)
         obs, reward, done, infos = env.step(action)
+        # Useful for gym FetchEnvs where they don't send the done flag
+        if 'is_success' in infos[0]:
+            if infos[0]['is_success']:
+                done = True
         if not args.no_render:
             env.render('human')
 

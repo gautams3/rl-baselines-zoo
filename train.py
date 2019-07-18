@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import difflib
 import os
 from collections import OrderedDict
@@ -295,12 +296,23 @@ if __name__ == '__main__':
         kwargs = {}
         if args.log_interval > -1:
             kwargs = {'log_interval': args.log_interval}
+        expt_name = get_expt_name(args.algo, args.env)
+        kwargs.update({'tb_log_name': expt_name})
 
+        start = datetime.datetime.now()
         model.learn(n_timesteps, **kwargs)
+        end = datetime.datetime.now()
+        training_time = end-start
+        days    = divmod(training_time.total_seconds(), 86400) # Get days (without [0]!)
+        hours   = divmod(days[1], 3600)               # Use remainder of days to calc hours
+        minutes = divmod(hours[1], 60)                # Use remainder of hours to calc minutes
+        seconds = divmod(minutes[1], 1)               # Use remainder of minutes to calc seconds
+        print("Training time: {0} days, {1} hours, {2} minutes and {3} seconds for {4} steps".format(
+        int(days[0]), int(hours[0]), int(minutes[0]), int(seconds[0]), n_timesteps))
 
         # Save trained model
-        log_path = "{}/{}/".format(args.log_folder, args.algo)
-        save_path = os.path.join(log_path, "{}_{}".format(env_id, get_latest_run_id(log_path, env_id) + 1))
+        log_path = "{}/{}/".format(args.log_folder, env_id)
+        save_path = os.path.join(log_path, expt_name)
         params_path = "{}/{}".format(save_path, env_id)
         os.makedirs(params_path, exist_ok=True)
 
@@ -319,3 +331,8 @@ if __name__ == '__main__':
                     env = env.venv
                 # Important: save the running average, for testing the agent we need that normalization
                 env.save_running_average(params_path)
+
+def get_expt_name(algo_name, env_name):
+    now = datetime.datetime.now()
+    expt_name = "{}_{}_{}".format(algo_name, env_name, now.strftime("%m%d_%H%M"))
+    return expt_name
