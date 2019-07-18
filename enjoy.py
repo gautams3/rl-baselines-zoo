@@ -1,4 +1,5 @@
 import argparse
+import custom_gym_envs
 import os
 import warnings
 import sys

@@ -6,6 +6,7 @@ from collections import OrderedDict
 from pprint import pprint
 import warnings
 import importlib
+import custom_gym_envs
 
 # For pybullet envs
 warnings.filterwarnings("ignore")
