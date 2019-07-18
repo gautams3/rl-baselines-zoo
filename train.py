@@ -293,10 +293,15 @@ if __name__ == '__main__':
             # Train an agent from scratch
             model = ALGOS[args.algo](env=env, tensorboard_log=tensorboard_log, verbose=args.verbose, **hyperparams)
 
+        def get_expt_name(algo_name, env_name):
+            now = datetime.datetime.now()
+            expt_name = "{}_{}_{}".format(algo_name, env_name, now.strftime("%m%d_%H%M"))
+            return expt_name
+
         kwargs = {}
         if args.log_interval > -1:
             kwargs = {'log_interval': args.log_interval}
-        expt_name = get_expt_name(args.algo, args.env)
+        expt_name = get_expt_name(args.algo, env_id)
         kwargs.update({'tb_log_name': expt_name})
 
         start = datetime.datetime.now()
@@ -331,8 +336,3 @@ if __name__ == '__main__':
                     env = env.venv
                 # Important: save the running average, for testing the agent we need that normalization
                 env.save_running_average(params_path)
-
-def get_expt_name(algo_name, env_name):
-    now = datetime.datetime.now()
-    expt_name = "{}_{}_{}".format(algo_name, env_name, now.strftime("%m%d_%H%M"))
-    return expt_name
